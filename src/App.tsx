@@ -1,35 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from './store/store';
+import { addTodo, toggleTodo, removeTodo } from './store/todoSlice';
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const [text, setText] = useState('');
+  const todos = useSelector((state: RootState) => state.todos);
+  const dispatch = useDispatch();
+
+  const handleAdd = () => {
+    if (text.trim()) {
+      dispatch(addTodo(text));
+      setText('');
+    }
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="min-h-screen flex justify-center items-center bg-gray-900 text-white">
+      <div className="bg-white text-black p-6 rounded-lg shadow-lg w-96">
+        <h1 className="text-2xl font-bold mb-4">To-Do List</h1>
+        <div className="flex mb-4">
+          <input
+            className="border flex-1 p-2 rounded-l-lg"
+            type="text"
+            placeholder="Add a task..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <button
+            onClick={handleAdd}
+            className="bg-orange-500 text-white px-4 py-2 rounded-r-lg"
+          >
+            ADD +
+          </button>
+        </div>
+        <ul>
+          {todos.map((todo) => (
+            <li key={todo.id} className="flex items-center justify-between mb-2">
+              <span
+                onClick={() => dispatch(toggleTodo(todo.id))}
+                className={`cursor-pointer ${todo.completed ? 'line-through' : ''}`}
+              >
+                {todo.text}
+              </span>
+              <button
+                onClick={() => dispatch(removeTodo(todo.id))}
+                className="text-red-500"
+              >
+                🗑️
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    </div>
+  );
+};
 
-export default App
+export default App;
